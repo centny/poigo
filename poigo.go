@@ -2,7 +2,7 @@ package poigo
 
 import (
 	"fmt"
-	"github.com/Centny/Cny4go/util"
+	"github.com/Centny/gwf/util"
 	"github.com/Centny/jnigo"
 	"time"
 )
