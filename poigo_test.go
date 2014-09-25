@@ -12,12 +12,30 @@ func TestRun(t *testing.T) {
 	OpenHSSFWorkbook(nil)
 	OpenXSSFWorkbook(nil)
 	Check(WbSig)
-	Init("/Users/cny/Tmp/HH/poi")
+	cp := jnigo.NewClassPath()
+	cp.AddPath("/Users/cny/Tmp/HH/poi")
+	cp.AddFloder("pjava/bin")
+	jnigo.Init(cp.Option())
+	// Init("/Users/cny/Tmp/HH/poi", "pjava/bin")
 	fmt.Println(jnigo.GVM)
+	tTestShow(t)
 	tTestCheck(t)
 	tTestFile(t)
 	tTestCreate(t)
 	tTestRead(t)
+}
+
+func show(cb *jnigo.Object) {
+	cls := jnigo.GVM.FindClass("poigo.Show")
+	if cls == nil {
+		fmt.Println("class not found")
+		return
+	}
+	fmt.Println(cls.CallVoid("show", cb))
+}
+func tTestShow(t *testing.T) {
+	sb := jnigo.GVM.NewS("这是中文")
+	show(sb)
 }
 func tTestCheck(t *testing.T) {
 	Check(WbSig + "ss")
@@ -29,13 +47,14 @@ func tTestRead(t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
-	defer input.Close()
 	wb, err := OpenXSSFWorkbook(input)
 	if err != nil {
 		t.Error(err.Error())
+		input.Close()
 		return
 	}
 	sTestRead(wb, t)
+	input.Close()
 	//
 	input, err = NewFileInputStream("t.xls")
 	if err != nil {
@@ -45,36 +64,53 @@ func tTestRead(t *testing.T) {
 	defer input.Close()
 	wb, err = OpenHSSFWorkbook(input)
 	if err != nil {
-		t.Error(err.Error())
+		input.Close()
 		return
 	}
 	sTestRead(wb, t)
+	input.Close()
 	//
 	input, err = NewFileInputStream("t.xls")
 	if err != nil {
-		t.Error(err.Error())
 		return
 	}
 	defer input.Close()
 	wb, err = OpenHSSFWorkbook(input)
 	if err != nil {
-		t.Error(err.Error())
+		input.Close()
 		return
 	}
 	sTestRead2(wb, t)
+	input.Close()
 	//
 	input, err = NewFileInputStream("t.xlsx")
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-	defer input.Close()
 	wb, err = OpenXSSFWorkbook(input)
+	if err != nil {
+		t.Error(err.Error())
+		input.Close()
+		return
+	}
+	sTestRead3(wb, t)
+	input.Close()
+	//
+	input, err = NewFileInputStream("t.xlsx")
 	if err != nil {
 		t.Error(err.Error())
 		return
 	}
-	sTestRead3(wb, t)
+	// defer
+	wb, err = OpenXSSFWorkbook(input)
+	if err != nil {
+		t.Error(err.Error())
+		input.Close()
+		return
+	}
+	sTestRead4(wb, t)
+	input.Close()
 }
 func sTestRead(wb *Workbook, t *testing.T) {
 	fmt.Println("Read--------->S")
@@ -184,6 +220,42 @@ func sTestRead3(wb *Workbook, t *testing.T) {
 	}
 	fmt.Println(cell.Formula())
 }
+func sTestRead4(wb *Workbook, t *testing.T) {
+	fmt.Println("sTestRead4...")
+	sheet, err := wb.SheetAt(0)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	cell, err := sheet.CellAt(5, 0)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	fmt.Println(cell.Formula())
+	// sr, err := cell.Evaluate()
+	// if err != nil {
+	// 	fmt.Println("iconv.Open failed!")
+	// 	return
+	// }
+	// ss, err := sr.Cb.CallObject("formatAsString", "java.lang.String")
+	// if err != nil {
+	// 	fmt.Println("iconv.Open failed!")
+	// 	return
+	// }
+	// show(ss)
+	// bys, err := ss.CallObject("getBytes", "[B", "UTF-8")
+	// if err != nil {
+	// 	fmt.Println("iconv.Open failed!")
+	// 	return
+	// }
+	// fmt.Println(string(bys.AsByteAry(nil)))
+	// fmt.Println(ss.AsString())
+	// fmt.Println(sr)
+	// fmt.Println(gbk)
+	fmt.Println("sTestRead4...03")
+	fmt.Println("sTestRead4...END")
+}
 func tTestCreate(t *testing.T) {
 	wb, err := NewXSSFWorkbook()
 	if err != nil {
@@ -290,6 +362,12 @@ func sTestCreate(wb *Workbook, t *testing.T) {
 		t.Error(err.Error())
 		return
 	}
+	cell, err = row.CreateCell(5)
+	if err != nil {
+		t.Error(err.Error())
+		return
+	}
+	cell.SetCellValue("这是中文")
 	fmt.Println(cell.Numeric())
 	fmt.Println(cell.String())
 	fmt.Println(cell.Boolean())

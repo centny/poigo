@@ -1,7 +1,6 @@
 package poigo
 
 import (
-	"fmt"
 	"github.com/Centny/gwf/util"
 	"github.com/Centny/jnigo"
 	"time"
@@ -19,7 +18,9 @@ const (
 const WbSig = "org.apache.poi.ss.usermodel.Workbook"
 
 func Init(path ...string) int {
-	return jnigo.Init(jnigo.NewClassPathOption(path...))
+	cls := jnigo.NewClassPath()
+	cls.AddPath(path...)
+	return jnigo.Init(cls.Option())
 }
 func chk_vm() error {
 	if jnigo.GVM == nil {
@@ -269,7 +270,6 @@ func (s *Sheet) RowAt(idx int) (*Row, error) {
 }
 func (s *Sheet) CellAt(r, c int) (*Cell, error) {
 	row, err := s.RowAt(r)
-	fmt.Println(row)
 	if err != nil {
 		return nil, err
 	}

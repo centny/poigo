@@ -8,3 +8,14 @@ coverage.html
 coverage.json
 
 coverage.xml
+
+pjava/dom4j-1.6.1.jar
+
+pjava/poi-3.10.1-20140818.jar
+
+pjava/poi-ooxml-schemas-3.10.1-20140818.jar
+
+
+pjava/xmlbeans-2.6.0.jar
+
+pjava/poi-ooxml-3.10.1-20140818.jar
